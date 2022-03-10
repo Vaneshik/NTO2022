@@ -7,7 +7,7 @@
 ## Задача
 
 Вам необходимо:
-- Провести инвентаризацию хостов в 4 сетевых сегментах': сегмент DMZ (10.х.2.0/24), сегмент SERVERS (10.х.3.0/24), сегмент OFFICE (10.x.4.0/24) и сегмент АСУ ТП (10.x.239.0/24, 10.x.240.0/24)?.
+- Провести инвентаризацию хостов в 4 сетевых сегментах: сегмент DMZ (10.х.2.0/24), сегмент SERVERS (10.х.3.0/24), сегмент OFFICE (10.x.4.0/24) и сегмент АСУ ТП (10.x.239.0/24, 10.x.240.0/24).
 - Расследовать цепочку атак злоумышленника, используя журналы безопасности и логи средств защиты.
 - Вернуть контроль над захваченными компьютерами, восстановив легитимный доступ.
 - Найти и расшифровать ценные файлы. - Остановить распространение бота-зловреда во всей инфраструктуре, а также понять, что он делает.
@@ -321,3 +321,82 @@ Service Info: Host: A31-ENTEK; OS: Windows; CPE: cpe:/o:microsoft:windows
 > Из результатов убраны ip с последним октетом .1 .2 .3 .4
 
 ---
+
+## 10.31.2.10
+
+- По 80 порту расположен сайт на WordPress.
+- Результаты скана nikto:
+```shell
+$ nikto -h 10.31.2.10
+ Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.31.2.10
++ Target Hostname:    10.31.2.10
++ Target Port:        80
++ Start Time:         2022-03-10 11:36:52 (GMT3)
+---------------------------------------------------------------------------
++ Server: nginx/1.14.2
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ Uncommon header 'link' found, with contents: <http://10.31.2.10/wp-json/>; rel="https://api.w.org/"
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ Uncommon header 'x-redirect-by' found, with contents: WordPress
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Entry '/wp-admin/' in robots.txt returned a non-forbidden or redirect HTTP code (302)
++ "robots.txt" contains 2 entries which should be manually viewed.
++ /wp-content/plugins/akismet/readme.txt: The WordPress Akismet plugin 'Tested up to' version usually matches the WordPress version
++ /wp-links-opml.php: This WordPress script reveals the installed version.
++ OSVDB-3092: /license.txt: License file found may identify site software.
++ /wp-app.log: Wordpress' wp-app.log may leak application/system details.
++ /wordpresswp-app.log: Wordpress' wp-app.log may leak application/system details.
++ /: A Wordpress installation was found.
++ /wordpress: A Wordpress installation was found.
++ Cookie wordpress_test_cookie created without the httponly flag
++ /wp-login.php: Wordpress login found
++ 7893 requests: 0 error(s) and 16 item(s) reported on remote host
++ End Time:           2022-03-10 11:41:02 (GMT3) (250 seconds)
+```
+
+- robots.txt
+
+```
+User-agent: * 
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+
+Sitemap: http://10.31.2.10/wp-sitemap.xml
+```
+
+- http://10.31.2.10/wp-admin/ редирект на страницу авторизации
+- WordPress 5.9.1
+- Установлен Akismet plugin
+- http://10.31.2.10/wp-json/ открытое API
+- http://10.31.2.10/wp-json/wp/v2/users пользователь admin
+```json
+{
+  "id": 1,
+  "name": "admin",
+  "url": "http://10.31.2.10",
+  "description": "",
+  "link": "http://10.31.2.10/author/admin/",
+  "slug": "admin",
+  "avatar_urls": {
+    "24": "http://0.gravatar.com/avatar/f65445725c053a5c7d4e80d8e20dbf0e?s=24&d=mm&r=g",
+    "48": "http://0.gravatar.com/avatar/f65445725c053a5c7d4e80d8e20dbf0e?s=48&d=mm&r=g",
+    "96": "http://0.gravatar.com/avatar/f65445725c053a5c7d4e80d8e20dbf0e?s=96&d=mm&r=g"
+  },
+  "meta": [],
+  "_links": {
+    "self": [
+      {
+        "href": "http://10.31.2.10/wp-json/wp/v2/users/1"
+      }
+    ],
+    "collection": [
+      {
+        "href": "http://10.31.2.10/wp-json/wp/v2/users"
+      }
+    ]
+  }
+}
+```
