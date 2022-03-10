@@ -40,97 +40,232 @@ oper
 
 ## Результаты скана nmap -ом:
 
-### 10.31.239.0/24
+### 10.31.2.0/24 ( Сегмент DMZ )
 
 ```shell
-$ nmap 10.31.239.0/24
-Starting Nmap 7.92 ( https://nmap.org ) at 2022-03-10 08:52 MSK
-Nmap scan report for 10.31.239.5
-Host is up (0.0074s latency).
-Not shown: 990 closed tcp ports (conn-refused)
-PORT      STATE SERVICE
-22/tcp    open  ssh
-80/tcp    open  http
-135/tcp   open  msrpc
-139/tcp   open  netbios-ssn
-445/tcp   open  microsoft-ds
-1433/tcp  open  ms-sql-s
-3389/tcp  open  ms-wbt-server
-49152/tcp open  unknown
-49153/tcp open  unknown
-49154/tcp open  unknown
+$ nmap 10.31.2.0/24 -sV
+
+Nmap scan report for 10.31.2.10
+Host is up (0.0043s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)
+80/tcp   open  http    nginx 1.14.2
+3306/tcp open  mysql   MySQL (unauthorized)
+8080/tcp open  http    nginx 1.14.2
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
  
-Nmap scan report for 10.31.239.6
+Nmap scan report for 10.31.2.11
 Host is up (0.0049s latency).
-Not shown: 990 closed tcp ports (conn-refused)
-PORT      STATE SERVICE
-22/tcp    open  ssh
-135/tcp   open  msrpc
-139/tcp   open  netbios-ssn
-445/tcp   open  microsoft-ds
-3389/tcp  open  ms-wbt-server
-49152/tcp open  unknown
-49153/tcp open  unknown
-49154/tcp open  unknown
-49175/tcp open  unknown
-49176/tcp open  unknown
+Not shown: 996 closed tcp ports (conn-refused)
+PORT    STATE SERVICE     VERSION
+22/tcp  open  ssh         OpenSSH 6.7p1 Debian 5 (protocol 2.0)
+80/tcp  open  http        Apache httpd 2.4.10 ((Debian))
+139/tcp open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+445/tcp open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+Service Info: Host: CLEAN-DRUPAL; OS: Linux; CPE: cpe:/o:linux:linux_kernel
+ 
+Nmap scan report for 10.31.2.12
+Host is up (0.0048s latency).
+Not shown: 985 closed tcp ports (conn-refused)
+PORT      STATE SERVICE            VERSION
+22/tcp    open  ssh                OpenSSH for_Windows_8.6 (protocol 2.0)
+25/tcp    open  smtp               SLmail smtpd 5.5.0.4433
+79/tcp    open  finger             SLMail fingerd
+106/tcp   open  pop3pw             SLMail pop3pw
+110/tcp   open  pop3               BVRP Software SLMAIL pop3d
+135/tcp   open  msrpc              Microsoft Windows RPC
+139/tcp   open  netbios-ssn        Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds       Microsoft Windows 7 - 10 microsoft-ds (workgroup: WORKGROUP)
+3389/tcp  open  ssl/ms-wbt-server?
+49152/tcp open  msrpc              Microsoft Windows RPC
+49153/tcp open  msrpc              Microsoft Windows RPC
+49154/tcp open  msrpc              Microsoft Windows RPC
+49155/tcp open  msrpc              Microsoft Windows RPC
+49156/tcp open  msrpc              Microsoft Windows RPC
+49157/tcp open  msrpc              Microsoft Windows RPC
+Service Info: Host: a31-slmail; OS: Windows; CPE: cpe:/o:microsoft:windows
+ 
+Nmap scan report for 10.31.2.53
+Host is up (0.0046s latency).
+Not shown: 998 closed tcp ports (conn-refused)
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 8.4p1 Debian 5 (protocol 2.0)
+53/tcp open  domain  ISC BIND
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-### 10.31.240.0/24
+### 10.31.3.0/24 ( Сегмент SERVERS )
 
 ```shell
-$ nmap 10.31.240.0/24
-Starting Nmap 7.92 ( https://nmap.org ) at 2022-03-10 08:53 MSK
-Nmap scan report for 10.31.240.5
-Host is up (0.010s latency).
-Not shown: 998 closed tcp ports (conn-refused)
-PORT   STATE SERVICE
-22/tcp open  ssh
-80/tcp open  http
+$ nmap 10.31.3.0/24 -sV
+
+Nmap scan report for 10.31.3.10
+Host is up (0.0049s latency).
+Not shown: 988 closed tcp ports (conn-refused)
+PORT     STATE SERVICE       VERSION
+53/tcp   open  domain        Simple DNS Plus
+88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2022-03-10 06:31:55Z)
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+389/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: company.local0., Site: Default-First-Site-Name)
+445/tcp  open  microsoft-ds?
+464/tcp  open  kpasswd5?
+593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  tcpwrapped
+3268/tcp open  ldap          Microsoft Windows Active Directory LDAP (Domain: company.local0., Site: Default-First-Site-Name)
+3269/tcp open  tcpwrapped
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+Service Info: Host: NS2; OS: Windows; CPE: cpe:/o:microsoft:windows
  
-Nmap scan report for 10.31.240.6
-Host is up (0.0064s latency).
-Not shown: 998 closed tcp ports (conn-refused)
-PORT   STATE SERVICE
-22/tcp open  ssh
-80/tcp open  http
+Nmap scan report for 10.31.3.20
+Host is up (0.0039s latency).
+Not shown: 969 closed tcp ports (conn-refused)
+PORT     STATE SERVICE       VERSION
+25/tcp   open  smtp          Microsoft Exchange smtpd
+80/tcp   open  http          Microsoft IIS httpd 10.0
+81/tcp   open  http          Microsoft IIS httpd 10.0
+110/tcp  open  pop3          Microsoft Exchange 2007-2010 pop3d
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+143/tcp  open  imap          Microsoft Exchange 2007-2010 imapd
+443/tcp  open  ssl/http      Microsoft IIS httpd 10.0
+444/tcp  open  ssl/http      Microsoft IIS httpd 10.0
+445/tcp  open  microsoft-ds?
+465/tcp  open  smtp          Microsoft Exchange smtpd
+587/tcp  open  smtp          Microsoft Exchange smtpd
+593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+808/tcp  open  ccproxy-http?
+993/tcp  open  ssl/imap      Microsoft Exchange 2007-2010 imapd
+995/tcp  open  ssl/pop3      Microsoft Exchange 2007-2010 pop3d
+1801/tcp open  msmq?
+2103/tcp open  msrpc         Microsoft Windows RPC
+2105/tcp open  msrpc         Microsoft Windows RPC
+2107/tcp open  msrpc         Microsoft Windows RPC
+2525/tcp open  smtp          Microsoft Exchange smtpd
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+3800/tcp open  http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+3801/tcp open  mc-nmf        .NET Message Framing
+3828/tcp open  mc-nmf        .NET Message Framing
+6001/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+6565/tcp open  msrpc         Microsoft Windows RPC
+6566/tcp open  msrpc         Microsoft Windows RPC
+6667/tcp open  msrpc         Microsoft Windows RPC
+6668/tcp open  msrpc         Microsoft Windows RPC
+6689/tcp open  msrpc         Microsoft Windows RPC
+Service Info: Host: mx1.company.local; OS: Windows; CPE: cpe:/o:microsoft:windows
  
-Nmap scan report for 10.31.240.9
-Host is up (0.0055s latency).
-Not shown: 998 closed tcp ports (conn-refused)
-PORT   STATE SERVICE
-22/tcp open  ssh
-80/tcp open  http
- 
-Nmap scan report for 10.31.240.10
-Host is up (0.013s latency).
-Not shown: 998 closed tcp ports (conn-refused)
-PORT   STATE SERVICE
-22/tcp open  ssh
-80/tcp open  http
- 
-Nmap scan report for 10.31.240.14
-Host is up (0.0077s latency).
-Not shown: 989 closed tcp ports (conn-refused)
-PORT      STATE SERVICE
-22/tcp    open  ssh
-135/tcp   open  msrpc
-139/tcp   open  netbios-ssn
-445/tcp   open  microsoft-ds
-3389/tcp  open  ms-wbt-server
-49152/tcp open  unknown
-49153/tcp open  unknown
-49154/tcp open  unknown
-49155/tcp open  unknown
-49156/tcp open  unknown
-49157/tcp open  unknown
+Nmap scan report for 10.31.3.50
+Host is up (0.0035s latency).
+Not shown: 988 closed tcp ports (conn-refused)
+PORT     STATE SERVICE       VERSION
+53/tcp   open  domain        Simple DNS Plus
+88/tcp   open  kerberos-sec  Microsoft Windows Kerberos (server time: 2022-03-10 06:32:07Z)
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+389/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: company.local0., Site: Default-First-Site-Name)
+445/tcp  open  microsoft-ds?
+464/tcp  open  kpasswd5?
+593/tcp  open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+636/tcp  open  tcpwrapped
+3268/tcp open  ldap          Microsoft Windows Active Directory LDAP (Domain: company.local0., Site: Default-First-Site-Name)
+3269/tcp open  tcpwrapped
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+Service Info: Host: NS1; OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
-### 10.31.240.0/24
+### 10.31.4.0/24 ( Сегмент OFFICE )
 
+```shell 
+$ nmap 10.31.4.0/24 -sV
+
+Nmap scan report for 10.31.4.6
+Host is up (0.0098s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds?
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+ 
+Nmap scan report for 10.31.4.8
+Host is up (0.0053s latency).
+Not shown: 992 closed tcp ports (conn-refused)
+PORT      STATE SERVICE            VERSION
+22/tcp    open  ssh                OpenSSH for_Windows_8.6 (protocol 2.0)
+135/tcp   open  msrpc              Microsoft Windows RPC
+139/tcp   open  netbios-ssn        Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds       Microsoft Windows 7 - 10 microsoft-ds (workgroup: company)
+3389/tcp  open  ssl/ms-wbt-server?
+49152/tcp open  msrpc              Microsoft Windows RPC
+49153/tcp open  msrpc              Microsoft Windows RPC
+49154/tcp open  msrpc              Microsoft Windows RPC
+Service Info: Host: BUCHGARM; OS: Windows; CPE: cpe:/o:microsoft:windows
+ 
+Nmap scan report for 10.31.4.10
+Host is up (0.0036s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds?
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+ 
+Nmap scan report for 10.31.4.13
+Host is up (0.0036s latency).
+Not shown: 996 closed tcp ports (conn-refused)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp  open  microsoft-ds?
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+```
+
+### 10.31.239.0/24 (сегмент АСУ ТП [I] )
+
+```shell
+$ nmap 10.31.239.0/24 -sV
+
+Nmap scan report for 10.31.239.5
+Host is up (0.0064s latency).
+Not shown: 990 closed tcp ports (conn-refused)
+PORT      STATE SERVICE            VERSION
+22/tcp    open  ssh                OpenSSH for_Windows_8.6 (protocol 2.0)
+80/tcp    open  http               Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+135/tcp   open  msrpc              Microsoft Windows RPC
+139/tcp   open  netbios-ssn        Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds       Microsoft Windows 7 - 10 microsoft-ds (workgroup: company)
+1433/tcp  open  ms-sql-s           Microsoft SQL Server 2012 11.00.7001
+3389/tcp  open  ssl/ms-wbt-server?
+49152/tcp open  msrpc              Microsoft Windows RPC
+49153/tcp open  msrpc              Microsoft Windows RPC
+49154/tcp open  msrpc              Microsoft Windows RPC
+Service Info: Host: OIK-SERVER; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Nmap scan report for 10.31.239.6
+Host is up (0.0071s latency).
+Not shown: 990 closed tcp ports (conn-refused)
+PORT      STATE SERVICE            VERSION
+22/tcp    open  ssh                OpenSSH for_Windows_8.6 (protocol 2.0)
+135/tcp   open  msrpc              Microsoft Windows RPC
+139/tcp   open  netbios-ssn        Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds       Microsoft Windows 7 - 10 microsoft-ds (workgroup: company)
+3389/tcp  open  ssl/ms-wbt-server?
+49152/tcp open  msrpc              Microsoft Windows RPC
+49153/tcp open  msrpc              Microsoft Windows RPC
+49154/tcp open  msrpc              Microsoft Windows RPC
+49175/tcp open  msrpc              Microsoft Windows RPC
+49176/tcp open  msrpc              Microsoft Windows RPC
+Service Info: Host: OIK-CLIENT; OS: Windows; CPE: cpe:/o:microsoft:windows
+```
+
+### 10.31.240.0/24 (сегмент АСУ ТП [II] )
 ```shell
 $ nmap 10.31.240.0/24 -sV
-Starting Nmap 7.92 ( https://nmap.org ) at 2022-03-10 09:08 MSK
+
 Nmap scan report for 10.31.240.5
 Host is up (0.0065s latency).
 Not shown: 998 closed tcp ports (conn-refused)
@@ -181,43 +316,7 @@ PORT      STATE SERVICE            VERSION
 Service Info: Host: A31-ENTEK; OS: Windows; CPE: cpe:/o:microsoft:windows
 ```
 
-### 10.31.239.0/24
 
-```shell
-$ nmap 10.31.239.0/24 -sV
-Starting Nmap 7.92 ( https://nmap.org ) at 2022-03-10 09:11 MSK
-Nmap scan report for 10.31.239.5
-Host is up (0.0064s latency).
-Not shown: 990 closed tcp ports (conn-refused)
-PORT      STATE SERVICE            VERSION
-22/tcp    open  ssh                OpenSSH for_Windows_8.6 (protocol 2.0)
-80/tcp    open  http               Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
-135/tcp   open  msrpc              Microsoft Windows RPC
-139/tcp   open  netbios-ssn        Microsoft Windows netbios-ssn
-445/tcp   open  microsoft-ds       Microsoft Windows 7 - 10 microsoft-ds (workgroup: company)
-1433/tcp  open  ms-sql-s           Microsoft SQL Server 2012 11.00.7001
-3389/tcp  open  ssl/ms-wbt-server?
-49152/tcp open  msrpc              Microsoft Windows RPC
-49153/tcp open  msrpc              Microsoft Windows RPC
-49154/tcp open  msrpc              Microsoft Windows RPC
-Service Info: Host: OIK-SERVER; OS: Windows; CPE: cpe:/o:microsoft:windows
-
-Nmap scan report for 10.31.239.6
-Host is up (0.0071s latency).
-Not shown: 990 closed tcp ports (conn-refused)
-PORT      STATE SERVICE            VERSION
-22/tcp    open  ssh                OpenSSH for_Windows_8.6 (protocol 2.0)
-135/tcp   open  msrpc              Microsoft Windows RPC
-139/tcp   open  netbios-ssn        Microsoft Windows netbios-ssn
-445/tcp   open  microsoft-ds       Microsoft Windows 7 - 10 microsoft-ds (workgroup: company)
-3389/tcp  open  ssl/ms-wbt-server?
-49152/tcp open  msrpc              Microsoft Windows RPC
-49153/tcp open  msrpc              Microsoft Windows RPC
-49154/tcp open  msrpc              Microsoft Windows RPC
-49175/tcp open  msrpc              Microsoft Windows RPC
-49176/tcp open  msrpc              Microsoft Windows RPC
-Service Info: Host: OIK-CLIENT; OS: Windows; CPE: cpe:/o:microsoft:windows
-```
 
 > Из результатов убраны ip с последним октетом .1 .2 .3 .4
 
